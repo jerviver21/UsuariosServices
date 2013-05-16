@@ -6,11 +6,14 @@ import com.vi.usuarios.dominio.Groups;
 import com.vi.usuarios.dominio.Resource;
 import com.vi.usuarios.dominio.Rol;
 import com.vi.usuarios.dominio.Users;
+import com.vi.utils.UsuarioEstados;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 import javax.ejb.Stateless;
+import javax.ejb.TransactionAttribute;
+import javax.ejb.TransactionAttributeType;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
@@ -35,6 +38,7 @@ public class UsuariosServices implements UsuariosServicesLocal {
     }
 
     @Override
+    @TransactionAttribute(TransactionAttributeType.REQUIRED)
     public void edit(Users entity) throws LlaveDuplicadaException{
         try {
             em.merge(entity);
@@ -113,6 +117,13 @@ public class UsuariosServices implements UsuariosServicesLocal {
         }else{
             return false;
         }
+    }
+
+    @Override
+    public void activarUsuario(String usr) {
+        Users usuario = (Users)em.createNamedQuery("Users.findUserByUsr").setParameter("usr", usr).getSingleResult();
+        usuario.setEstado(UsuarioEstados.ACTIVO);
+        em.merge(usuario);
     }
 
     

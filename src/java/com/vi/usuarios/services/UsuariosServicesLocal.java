@@ -32,5 +32,7 @@ public interface UsuariosServicesLocal {
     public Users findFullUser(String usr)throws NoResultException;
 
     public boolean isUsuarioDisponible(String usr);
+
+    public void activarUsuario(String usr);
     
 }
