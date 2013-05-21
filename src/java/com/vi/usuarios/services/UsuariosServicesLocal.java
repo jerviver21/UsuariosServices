@@ -34,5 +34,7 @@ public interface UsuariosServicesLocal {
     public boolean isUsuarioDisponible(String usr);
 
     public void activarUsuario(String usr);
+
+    public void desactivarUsuario(String email);
     
 }

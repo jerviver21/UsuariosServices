@@ -126,6 +126,13 @@ public class UsuariosServices implements UsuariosServicesLocal {
         em.merge(usuario);
     }
 
+    @Override
+    public void desactivarUsuario(String usr) {
+        Users usuario = (Users)em.createNamedQuery("Users.findUserByUsr").setParameter("usr", usr).getSingleResult();
+        usuario.setEstado(UsuarioEstados.INACTIVO);
+        em.merge(usuario);
+    }
+
     
     
 }
