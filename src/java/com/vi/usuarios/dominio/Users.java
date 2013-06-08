@@ -17,7 +17,8 @@ import javax.persistence.*;
 @Table(name = "users")
 @NamedQueries({
     @NamedQuery(name = "Users.findAll", query = "SELECT u FROM Users u"),
-    @NamedQuery(name = "Users.findUserByUsr", query = "SELECT u FROM Users u WHERE u.usr = :usr")
+    @NamedQuery(name = "Users.findUserByUsr", query = "SELECT u FROM Users u WHERE u.usr = :usr"),
+    @NamedQuery(name = "Users.findUserByCodRes", query = "SELECT u FROM Users u WHERE u.codRestauracion = :cod")
 })
 public class Users implements Serializable {
     private static final long serialVersionUID = 1L;
@@ -32,6 +33,8 @@ public class Users implements Serializable {
     @Basic(optional = false)
     @Column(name = "pwd")
     private String pwd = "";
+    @Column(name = "clave")
+    private String clave = "";
     @Basic(optional = false)
     @Column(name = "estado")
     private Integer estado = 1;
@@ -39,6 +42,9 @@ public class Users implements Serializable {
     private String nombre = "";
     @Column(name = "mail")
     private String mail = "";
+    
+    @Column(name = "cod_restauracion")
+    private String codRestauracion;
 
     @ManyToMany(fetch=FetchType.LAZY, cascade=CascadeType.MERGE)
     @JoinTable(name="user_group",
@@ -214,6 +220,34 @@ public class Users implements Serializable {
      */
     public void setEstado(Integer estado) {
         this.estado = estado;
+    }
+
+    /**
+     * @return the codRestauracion
+     */
+    public String getCodRestauracion() {
+        return codRestauracion;
+    }
+
+    /**
+     * @param codRestauracion the codRestauracion to set
+     */
+    public void setCodRestauracion(String codRestauracion) {
+        this.codRestauracion = codRestauracion;
+    }
+
+    /**
+     * @return the clave
+     */
+    public String getClave() {
+        return clave;
+    }
+
+    /**
+     * @param clave the clave to set
+     */
+    public void setClave(String clave) {
+        this.clave = clave;
     }
 
     

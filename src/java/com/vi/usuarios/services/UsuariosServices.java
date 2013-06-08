@@ -1,7 +1,12 @@
 
 package com.vi.usuarios.services;
 
+import com.vi.comun.dominio.AudMail;
 import com.vi.comun.exceptions.LlaveDuplicadaException;
+import com.vi.comun.exceptions.ParametroException;
+import com.vi.comun.locator.ParameterLocator;
+import com.vi.comun.services.MailService;
+import com.vi.comun.util.Encriptador;
 import com.vi.usuarios.dominio.Groups;
 import com.vi.usuarios.dominio.Resource;
 import com.vi.usuarios.dominio.Rol;
@@ -11,6 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
+import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
@@ -27,6 +33,9 @@ public class UsuariosServices implements UsuariosServicesLocal {
 
     @PersistenceContext(unitName = "UsuariosPU")
     private EntityManager em;
+    
+    @EJB
+    MailService mailService;
 
      @Override
     public void create(Users entity) throws LlaveDuplicadaException{
@@ -131,6 +140,53 @@ public class UsuariosServices implements UsuariosServicesLocal {
         Users usuario = (Users)em.createNamedQuery("Users.findUserByUsr").setParameter("usr", usr).getSingleResult();
         usuario.setEstado(UsuarioEstados.INACTIVO);
         em.merge(usuario);
+    }
+
+    @Override
+    public void solicitarRestauracion(String mail) throws Exception{
+        ParameterLocator locator = ParameterLocator.getInstance();
+        Users usr = findByUser(mail);
+        if(usr == null){
+            throw new Exception("El usuario: "+mail+" no es valido o no se ha registrado en el sistema");
+        }
+        long codigoRestauracion = Math.abs(((int)(Math.random()*100000))+usr.getUsr().hashCode());
+        usr.setCodRestauracion(codigoRestauracion+"");
+        em.merge(usr);
+        em.flush();
+        
+        //Envio de e-mail para la restauración
+        String url = locator.getParameter("url");
+        if(url == null){
+            throw new ParametroException("No se encuentra el parámetro url");
+        }
+
+
+        AudMail datosMail = new AudMail();
+        datosMail.setDestinatario(usr.getUsr());
+        datosMail.setAsunto("Restauracion Clave Medical History System!");
+        StringBuilder mensaje = new StringBuilder();
+        mensaje.append("Ingrese a la Dirección : \n ");
+        mensaje.append(locator.getParameter("url"));
+        mensaje.append("/usuarios/restaura_clave.xhtml \n");
+        mensaje.append("\n Utilice el siguiente código para restaurar su clave:");
+        mensaje.append(codigoRestauracion);
+        datosMail.setMensaje(mensaje.toString());
+
+        mailService.enviarMail(datosMail);
+    }
+
+    @Override
+    public void restaurarClave(String claveEncryp, String clave, String codigo)throws Exception{
+        List<Users> usrs = em.createNamedQuery("Users.findUserByCodRes").setParameter("cod", codigo).getResultList();
+        if(usrs.isEmpty()){
+            throw new Exception("El código de restauración es invalido");
+        }
+        Users usr = usrs.get(0);
+        usr.setPwd(claveEncryp);
+        usr.setClave(Encriptador.encrypt(clave));
+        usr.setCodRestauracion(null);
+        em.merge(usr);
+        
     }
 
     

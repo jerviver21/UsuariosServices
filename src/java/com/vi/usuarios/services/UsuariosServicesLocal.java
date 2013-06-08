@@ -37,4 +37,8 @@ public interface UsuariosServicesLocal {
 
     public void desactivarUsuario(String email);
     
+    public void solicitarRestauracion(String mail)throws Exception;
+
+    public void restaurarClave(String claveEncryp, String clave, String codigo)throws Exception;
+    
 }
