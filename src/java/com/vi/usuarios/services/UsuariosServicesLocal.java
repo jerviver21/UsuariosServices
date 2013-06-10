@@ -2,10 +2,13 @@
 package com.vi.usuarios.services;
 
 import com.vi.comun.exceptions.LlaveDuplicadaException;
+import com.vi.comun.exceptions.ParametroException;
 import com.vi.usuarios.dominio.Groups;
 import com.vi.usuarios.dominio.Users;
+import com.vi.utils.UsuarioEstados;
 import java.util.List;
 import javax.ejb.Local;
+import javax.mail.MessagingException;
 import javax.persistence.NoResultException;
 
 /**
@@ -40,5 +43,9 @@ public interface UsuariosServicesLocal {
     public void solicitarRestauracion(String mail)throws Exception;
 
     public void restaurarClave(String claveEncryp, String clave, String codigo)throws Exception;
+
+    public void registrar(Users usuarioRegistrar, String grupo, boolean enviarCorreo) throws  LlaveDuplicadaException, ParametroException, MessagingException;
+
+    public Users activar(String nroUsuario)throws ParametroException, NoResultException;
     
 }

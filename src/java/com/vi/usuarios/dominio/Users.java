@@ -18,7 +18,8 @@ import javax.persistence.*;
 @NamedQueries({
     @NamedQuery(name = "Users.findAll", query = "SELECT u FROM Users u"),
     @NamedQuery(name = "Users.findUserByUsr", query = "SELECT u FROM Users u WHERE u.usr = :usr"),
-    @NamedQuery(name = "Users.findUserByCodRes", query = "SELECT u FROM Users u WHERE u.codRestauracion = :cod")
+    @NamedQuery(name = "Users.findUserByCodRes", query = "SELECT u FROM Users u WHERE u.codRestauracion = :cod"),
+    @NamedQuery(name = "Users.findUserByNroUsrAndEstado", query = "SELECT u FROM Users u WHERE u.nroUsuario = :cod AND u.estado =:estado")
 })
 public class Users implements Serializable {
     private static final long serialVersionUID = 1L;
@@ -42,6 +43,8 @@ public class Users implements Serializable {
     private String nombre = "";
     @Column(name = "mail")
     private String mail = "";
+    @Column(name = "nro_usuario")
+    private String nroUsuario;
     
     @Column(name = "cod_restauracion")
     private String codRestauracion;
@@ -248,6 +251,20 @@ public class Users implements Serializable {
      */
     public void setClave(String clave) {
         this.clave = clave;
+    }
+
+    /**
+     * @return the nroUsuario
+     */
+    public String getNroUsuario() {
+        return nroUsuario;
+    }
+
+    /**
+     * @param nroUsuario the nroUsuario to set
+     */
+    public void setNroUsuario(String nroUsuario) {
+        this.nroUsuario = nroUsuario;
     }
 
     

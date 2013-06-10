@@ -2,17 +2,21 @@
 package com.vi.usuarios.services;
 
 import com.vi.comun.dominio.AudMail;
+import com.vi.comun.exceptions.EstadoException;
 import com.vi.comun.exceptions.LlaveDuplicadaException;
 import com.vi.comun.exceptions.ParametroException;
 import com.vi.comun.locator.ParameterLocator;
 import com.vi.comun.services.MailService;
 import com.vi.comun.util.Encriptador;
+import com.vi.comun.util.FechaUtils;
 import com.vi.usuarios.dominio.Groups;
 import com.vi.usuarios.dominio.Resource;
 import com.vi.usuarios.dominio.Rol;
 import com.vi.usuarios.dominio.Users;
 import com.vi.utils.UsuarioEstados;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
@@ -20,6 +24,7 @@ import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
+import javax.mail.MessagingException;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
@@ -36,13 +41,22 @@ public class UsuariosServices implements UsuariosServicesLocal {
     
     @EJB
     MailService mailService;
+    
+    @EJB
+    GruposServicesLocal grupoServices;
+    
+    ParameterLocator locator;
+    
+    public UsuariosServices(){
+        locator = ParameterLocator.getInstance();
+    }
 
      @Override
     public void create(Users entity) throws LlaveDuplicadaException{
         try {
             em.persist(entity);
         } catch (ConstraintViolationException e) {
-            throw new LlaveDuplicadaException("El menú ya existe");
+            throw new LlaveDuplicadaException("El usuario ya existe");
         }
     }
 
@@ -52,7 +66,7 @@ public class UsuariosServices implements UsuariosServicesLocal {
         try {
             em.merge(entity);
         } catch (ConstraintViolationException e) {
-            throw new LlaveDuplicadaException("El menú ya existe");
+            throw new LlaveDuplicadaException("El usuario ya existe");
         }
     }
     
@@ -188,6 +202,69 @@ public class UsuariosServices implements UsuariosServicesLocal {
         em.merge(usr);
         
     }
+
+    @Override
+    public void registrar(Users usuario, String grupo, boolean enviarCorreo) throws  LlaveDuplicadaException, ParametroException, MessagingException{
+
+        usuario.setMail(usuario.getUsr());
+        usuario.setClave(Encriptador.encrypt(usuario.getClave()));
+        usuario.setEstado(UsuarioEstados.INACTIVO);
+        Groups group =  grupoServices.findByCodigo(grupo);
+        List<Groups> grupos = new ArrayList<Groups>();
+        grupos.add(group);
+        usuario.setGrupos(grupos);
+        try {
+            usuario = em.merge(usuario);
+        } catch (ConstraintViolationException e) {
+            throw new LlaveDuplicadaException("El usuario ya existe");
+        }
+        String prefijoAnos = (""+FechaUtils.getAnoActual()).substring(2) + (""+(FechaUtils.getAnoActual()+1)).substring(2);
+        usuario.setNroUsuario(prefijoAnos+String.format("%08d",  usuario.getId().intValue()));
+        em.merge(usuario);
+        
+        
+        //Envio de email, para activación de usuario
+        if(enviarCorreo){
+            em.flush();
+            String url = locator.getParameter("url");
+            if(url == null){
+                throw new ParametroException("No se encuentra el parámetro url");
+            }
+            
+            
+            AudMail datosMail = new AudMail();
+            datosMail.setDestinatario(usuario.getUsr());
+            datosMail.setAsunto("Activacion Usuario Sistema");
+            StringBuilder mensaje = new StringBuilder();
+            mensaje.append("Ingrese a la Dirección : \n ");
+            mensaje.append(locator.getParameter("url"));
+            mensaje.append("/registro/activacion.xhtml \n");
+            mensaje.append("\n Active el siguiente Nro de Usuario:");
+            
+            
+            mensaje.append(usuario.getNroUsuario());
+            mensaje.append("\n( Copie el nro de licencia en el campo y presione el boton activar) \n\n\n Paideia Software. (Hacemos el mejor software!) \n\n Correo Automático por favor no responda a este correo.");
+            
+            datosMail.setMensaje(mensaje.toString());
+            
+            mailService.enviarMail(datosMail);
+            
+            //*****************************************************
+        }
+         
+    }
+
+    
+    @Override
+    public Users activar(String nroUsr)throws ParametroException, NoResultException{
+        Users usr = (Users) em.createNamedQuery("Users.findUserByNroUsrAndEstado")
+                .setParameter("cod", nroUsr)
+                .setParameter("estado", UsuarioEstados.INACTIVO).getSingleResult();
+        usr.setEstado(UsuarioEstados.ACTIVO);
+        em.merge(usr);
+        return usr;
+    }
+
 
     
     
