@@ -45,6 +45,8 @@ public class Users implements Serializable {
     private String mail = "";
     @Column(name = "nro_usuario")
     private String nroUsuario;
+    @Column(name = "num_id")
+    private String numId;
     
     @Column(name = "cod_restauracion")
     private String codRestauracion;
@@ -265,6 +267,20 @@ public class Users implements Serializable {
      */
     public void setNroUsuario(String nroUsuario) {
         this.nroUsuario = nroUsuario;
+    }
+
+    /**
+     * @return the numId
+     */
+    public String getNumId() {
+        return numId;
+    }
+
+    /**
+     * @param numId the numId to set
+     */
+    public void setNumId(String numId) {
+        this.numId = numId;
     }
 
     

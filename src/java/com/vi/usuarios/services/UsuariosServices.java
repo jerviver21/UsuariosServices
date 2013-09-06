@@ -181,7 +181,7 @@ public class UsuariosServices implements UsuariosServicesLocal {
         StringBuilder mensaje = new StringBuilder();
         mensaje.append("Ingrese a la Dirección : \n ");
         mensaje.append(locator.getParameter("url"));
-        mensaje.append("/usuarios/restaura_clave.xhtml \n");
+        mensaje.append("/registro/restaura_clave.xhtml \n");
         mensaje.append("\n Utilice el siguiente código para restaurar su clave:");
         mensaje.append(codigoRestauracion);
         datosMail.setMensaje(mensaje.toString());
