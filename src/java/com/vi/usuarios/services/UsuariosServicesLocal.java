@@ -5,8 +5,8 @@ import com.vi.comun.exceptions.LlaveDuplicadaException;
 import com.vi.comun.exceptions.ParametroException;
 import com.vi.usuarios.dominio.Groups;
 import com.vi.usuarios.dominio.Users;
-import com.vi.utils.UsuarioEstados;
 import java.util.List;
+import java.util.Set;
 import javax.ejb.Local;
 import javax.mail.MessagingException;
 import javax.persistence.NoResultException;
@@ -31,6 +31,8 @@ public interface UsuariosServicesLocal {
     public List<Users> findByUserFragment(String usr);
     
     public List<Groups> findGroupsUser(Users usr);
+    
+    public Set<String> findRolesUser(String usr);
     
     public Users findFullUser(String usr)throws NoResultException;
 

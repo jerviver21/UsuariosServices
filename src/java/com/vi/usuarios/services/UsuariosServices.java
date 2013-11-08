@@ -17,6 +17,7 @@ import com.vi.utils.UsuarioEstados;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
@@ -263,6 +264,14 @@ public class UsuariosServices implements UsuariosServicesLocal {
         usr.setEstado(UsuarioEstados.ACTIVO);
         em.merge(usr);
         return usr;
+    }
+    
+    @Override
+    public Set<String> findRolesUser(String usr){
+        List<String> roles = em.createNativeQuery("SELECT r.codigo\n" +
+                                                  "FROM users as u, groups as g, user_group as ug, rol as r, group_rol as gr\n" +
+                                                  "WHERE ug.id_group = g.id AND ug.id_user = u.id AND gr.id_group = g.id AND gr.id_rol = r.id AND usr = '"+usr+"'").getResultList();
+        return new HashSet<String>(roles);
     }
 
 
