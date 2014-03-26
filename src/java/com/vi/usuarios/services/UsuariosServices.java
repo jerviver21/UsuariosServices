@@ -2,7 +2,6 @@
 package com.vi.usuarios.services;
 
 import com.vi.comun.dominio.AudMail;
-import com.vi.comun.exceptions.EstadoException;
 import com.vi.comun.exceptions.LlaveDuplicadaException;
 import com.vi.comun.exceptions.ParametroException;
 import com.vi.comun.locator.ParameterLocator;
@@ -10,13 +9,12 @@ import com.vi.comun.services.MailService;
 import com.vi.comun.util.Encriptador;
 import com.vi.comun.util.FechaUtils;
 import com.vi.usuarios.dominio.Groups;
+import com.vi.usuarios.dominio.Licencia;
 import com.vi.usuarios.dominio.Resource;
 import com.vi.usuarios.dominio.Rol;
 import com.vi.usuarios.dominio.Users;
 import com.vi.utils.UsuarioEstados;
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -25,6 +23,7 @@ import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
+import javax.mail.AuthenticationFailedException;
 import javax.mail.MessagingException;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
@@ -53,21 +52,27 @@ public class UsuariosServices implements UsuariosServicesLocal {
     }
 
      @Override
-    public void create(Users entity) throws LlaveDuplicadaException{
+    public void create(Users entity) throws LlaveDuplicadaException, Exception{
         try {
             em.persist(entity);
-        } catch (ConstraintViolationException e) {
-            throw new LlaveDuplicadaException("El usuario ya existe");
+        } catch (Exception e) {
+            if(e instanceof ConstraintViolationException || (e.getCause() != null && e.getCause() instanceof ConstraintViolationException)){
+                throw new LlaveDuplicadaException("El usuario "+entity.getUsr()+" ya existe");
+            }
+            throw e;
         }
     }
 
     @Override
     @TransactionAttribute(TransactionAttributeType.REQUIRED)
-    public void edit(Users entity) throws LlaveDuplicadaException{
+    public void edit(Users entity) throws LlaveDuplicadaException, Exception{
         try {
             em.merge(entity);
-        } catch (ConstraintViolationException e) {
-            throw new LlaveDuplicadaException("El usuario ya existe");
+        } catch (Exception e) {
+            if(e instanceof ConstraintViolationException || (e.getCause() != null && e.getCause() instanceof ConstraintViolationException)){
+                throw new LlaveDuplicadaException("El usuario "+entity.getUsr()+" ya existe");
+            }
+            throw e;
         }
     }
     
@@ -88,6 +93,12 @@ public class UsuariosServices implements UsuariosServicesLocal {
     @Override
     public List<Users> findAll(){
         List<Users> usuarios = em.createNamedQuery("Users.findAll").getResultList();
+        return usuarios;
+    }
+    
+    @Override
+    public List<Users> findUsersByLicencia(Licencia licencia){
+        List<Users> usuarios = em.createNamedQuery("Users.findByLicencia").setParameter("licencia", licencia).getResultList();
         return usuarios;
     }
 
@@ -205,11 +216,12 @@ public class UsuariosServices implements UsuariosServicesLocal {
     }
 
     @Override
-    public void registrar(Users usuario, String grupo, boolean enviarCorreo) throws  LlaveDuplicadaException, ParametroException, MessagingException{
-
+    public void registrar(Users usuario, String grupo, boolean enviarCorreo) throws  LlaveDuplicadaException, ParametroException, MessagingException, AuthenticationFailedException{
+        System.out.println("Inicio Registro!");
         usuario.setMail(usuario.getUsr());
         usuario.setClave(Encriptador.encrypt(usuario.getClave()));
-        usuario.setEstado(UsuarioEstados.INACTIVO);
+        //usuario.setEstado(UsuarioEstados.INACTIVO);
+        usuario.setEstado(UsuarioEstados.ACTIVO);
         Groups group =  grupoServices.findByCodigo(grupo);
         List<Groups> grupos = new ArrayList<Groups>();
         grupos.add(group);
@@ -223,10 +235,10 @@ public class UsuariosServices implements UsuariosServicesLocal {
         usuario.setNroUsuario(prefijoAnos+String.format("%08d",  usuario.getId().intValue()));
         em.merge(usuario);
         
-        
+        //throw new ParametroException("");
         //Envio de email, para activación de usuario
-        if(enviarCorreo){
-            em.flush();
+        /*if(enviarCorreo){
+            //em.flush();
             String url = locator.getParameter("url");
             if(url == null){
                 throw new ParametroException("No se encuentra el parámetro url");
@@ -251,8 +263,8 @@ public class UsuariosServices implements UsuariosServicesLocal {
             mailService.enviarMail(datosMail);
             
             //*****************************************************
-        }
-         
+        }*/
+        System.out.println("Fin Registro"); 
     }
 
     

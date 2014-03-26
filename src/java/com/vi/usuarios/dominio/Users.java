@@ -17,6 +17,7 @@ import javax.persistence.*;
 @Table(name = "users")
 @NamedQueries({
     @NamedQuery(name = "Users.findAll", query = "SELECT u FROM Users u"),
+    @NamedQuery(name = "Users.findByLicencia", query = "SELECT u FROM Users u WHERE u.licencia =:licencia"),
     @NamedQuery(name = "Users.findUserByUsr", query = "SELECT u FROM Users u WHERE u.usr = :usr"),
     @NamedQuery(name = "Users.findUserByCodRes", query = "SELECT u FROM Users u WHERE u.codRestauracion = :cod"),
     @NamedQuery(name = "Users.findUserByNroUsrAndEstado", query = "SELECT u FROM Users u WHERE u.nroUsuario = :cod AND u.estado =:estado")
@@ -50,6 +51,10 @@ public class Users implements Serializable {
     
     @Column(name = "cod_restauracion")
     private String codRestauracion;
+    
+    @JoinColumn(name = "id_licencia", referencedColumnName = "id")
+    @ManyToOne(fetch = FetchType.EAGER)
+    private Licencia licencia;
 
     @ManyToMany(fetch=FetchType.LAZY, cascade=CascadeType.MERGE)
     @JoinTable(name="user_group",
@@ -281,6 +286,20 @@ public class Users implements Serializable {
      */
     public void setNumId(String numId) {
         this.numId = numId;
+    }
+
+    /**
+     * @return the licencia
+     */
+    public Licencia getLicencia() {
+        return licencia;
+    }
+
+    /**
+     * @param licencia the licencia to set
+     */
+    public void setLicencia(Licencia licencia) {
+        this.licencia = licencia;
     }
 
     

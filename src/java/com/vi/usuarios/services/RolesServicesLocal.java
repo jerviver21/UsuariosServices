@@ -2,6 +2,7 @@ package com.vi.usuarios.services;
 
 import com.vi.comun.exceptions.LlaveDuplicadaException;
 import com.vi.usuarios.dominio.Groups;
+import com.vi.usuarios.dominio.Licencia;
 import com.vi.usuarios.dominio.Resource;
 import com.vi.usuarios.dominio.Rol;
 import com.vi.usuarios.dominio.Users;
@@ -23,6 +24,8 @@ public interface RolesServicesLocal {
     Rol find(Object id);
 
     public List<Rol> findAll();
+    
+    public List<Rol> findByLicencia(Licencia licencia);
 
     public Set<Resource> findResourceByRol(Rol rol);
 

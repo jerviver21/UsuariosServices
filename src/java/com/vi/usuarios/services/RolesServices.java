@@ -2,6 +2,7 @@ package com.vi.usuarios.services;
 
 import com.vi.comun.exceptions.LlaveDuplicadaException;
 import com.vi.usuarios.dominio.Groups;
+import com.vi.usuarios.dominio.Licencia;
 import com.vi.usuarios.dominio.Resource;
 import com.vi.usuarios.dominio.Rol;
 import com.vi.usuarios.dominio.Users;
@@ -66,6 +67,12 @@ public class RolesServices implements RolesServicesLocal {
     @Override
     public List<Rol> findAll(){
         List<Rol> roles = em.createNamedQuery("Rol.findAll").getResultList();
+        return roles;
+    }
+    
+    @Override
+    public List<Rol> findByLicencia(Licencia licencia){
+        List<Rol> roles = em.createNamedQuery("Rol.findByLicencia").setParameter("licencia", licencia).getResultList();
         return roles;
     }
 

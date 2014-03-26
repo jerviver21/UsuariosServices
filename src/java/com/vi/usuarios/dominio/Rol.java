@@ -17,6 +17,7 @@ import javax.persistence.*;
 @Table(name = "rol")
 @NamedQueries({
     @NamedQuery(name = "Rol.findAll", query = "SELECT r FROM Rol r"),
+    @NamedQuery(name = "Rol.findByLicencia", query = "SELECT r FROM Rol r WHERE r.licencia =:licencia or r.licencia is null"),
     @NamedQuery(name = "Rol.findByCodigo", query = "SELECT r FROM Rol r WHERE r.codigo=:codigo")
 })
 public class Rol implements Serializable {
@@ -34,6 +35,10 @@ public class Rol implements Serializable {
     private String descripcion;
     @Transient
     private boolean addGroup;
+    
+    @JoinColumn(name = "id_licencia", referencedColumnName = "id")
+    @ManyToOne(fetch = FetchType.LAZY)
+    private Licencia licencia;
     
 
     @ManyToMany(fetch=FetchType.LAZY, cascade=CascadeType.ALL)
@@ -126,6 +131,20 @@ public class Rol implements Serializable {
      */
     public void setAddGroup(boolean addGroup) {
         this.addGroup = addGroup;
+    }
+
+    /**
+     * @return the licencia
+     */
+    public Licencia getLicencia() {
+        return licencia;
+    }
+
+    /**
+     * @param licencia the licencia to set
+     */
+    public void setLicencia(Licencia licencia) {
+        this.licencia = licencia;
     }
 
 

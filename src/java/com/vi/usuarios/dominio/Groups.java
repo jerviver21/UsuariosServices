@@ -16,6 +16,7 @@ import javax.persistence.*;
 @Table(name = "groups")
 @NamedQueries({
     @NamedQuery(name = "Groups.findAll", query = "SELECT g FROM Groups g"),
+    @NamedQuery(name = "Groups.findByLicencia", query = "SELECT g FROM Groups g WHERE g.licencia =:licencia or g.licencia is null"),
     @NamedQuery(name = "Groups.findByCodigo", query = "SELECT g FROM Groups g WHERE g.codigo=:codigo")
 })
 public class Groups implements Serializable {
@@ -30,6 +31,10 @@ public class Groups implements Serializable {
     private String codigo;
     @Column(name = "descripcion")
     private String descripcion;
+    
+    @JoinColumn(name = "id_licencia", referencedColumnName = "id")
+    @ManyToOne(fetch = FetchType.LAZY)
+    private Licencia licencia;
 
     @ManyToMany(fetch=FetchType.LAZY, cascade=CascadeType.MERGE)
     @JoinTable(name="group_rol",
@@ -124,6 +129,20 @@ public class Groups implements Serializable {
      */
     public void setAddUser(boolean addUser) {
         this.addUser = addUser;
+    }
+
+    /**
+     * @return the licencia
+     */
+    public Licencia getLicencia() {
+        return licencia;
+    }
+
+    /**
+     * @param licencia the licencia to set
+     */
+    public void setLicencia(Licencia licencia) {
+        this.licencia = licencia;
     }
 
 

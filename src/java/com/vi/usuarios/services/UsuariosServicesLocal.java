@@ -4,10 +4,12 @@ package com.vi.usuarios.services;
 import com.vi.comun.exceptions.LlaveDuplicadaException;
 import com.vi.comun.exceptions.ParametroException;
 import com.vi.usuarios.dominio.Groups;
+import com.vi.usuarios.dominio.Licencia;
 import com.vi.usuarios.dominio.Users;
 import java.util.List;
 import java.util.Set;
 import javax.ejb.Local;
+import javax.mail.AuthenticationFailedException;
 import javax.mail.MessagingException;
 import javax.persistence.NoResultException;
 
@@ -16,9 +18,9 @@ import javax.persistence.NoResultException;
  */
 @Local
 public interface UsuariosServicesLocal {
-    void create(Users user)throws LlaveDuplicadaException;
+    void create(Users user)throws LlaveDuplicadaException, Exception;
 
-    void edit(Users user)throws LlaveDuplicadaException;
+    void edit(Users user)throws LlaveDuplicadaException, Exception;
 
     void remove(Users user);
 
@@ -46,8 +48,10 @@ public interface UsuariosServicesLocal {
 
     public void restaurarClave(String claveEncryp, String clave, String codigo)throws Exception;
 
-    public void registrar(Users usuarioRegistrar, String grupo, boolean enviarCorreo) throws  LlaveDuplicadaException, ParametroException, MessagingException;
+    public void registrar(Users usuarioRegistrar, String grupo, boolean enviarCorreo) throws  LlaveDuplicadaException, ParametroException, MessagingException, AuthenticationFailedException;
 
     public Users activar(String nroUsuario)throws ParametroException, NoResultException;
+    
+    public List<Users> findUsersByLicencia(Licencia licencia);
     
 }

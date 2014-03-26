@@ -8,6 +8,7 @@ package com.vi.usuarios.services;
 
 import com.vi.comun.exceptions.LlaveDuplicadaException;
 import com.vi.usuarios.dominio.Groups;
+import com.vi.usuarios.dominio.Licencia;
 import com.vi.usuarios.dominio.Rol;
 import java.util.List;
 import javax.ejb.Local;
@@ -27,6 +28,8 @@ public interface GruposServicesLocal {
     Groups find(Object id);
 
     List<Groups> findAll();
+    
+    List<Groups> findByLicencia(Licencia licencia);
 
     List<Rol> findRolesByGroup(Groups group);
 
